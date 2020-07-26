@@ -1,0 +1,17 @@
+SELECT * FROM jsonb_diff(
+  '{"id":1, "name":"foo", "data":"foo", "col":1, "arr":[1,"2",3,4] }',
+  '{"id":1, "data":"bar", "val":1, "arr":[1,2,3]}'
+);
+NOTICE:  table "scm_table" does not exist, skipping
+  kind  | left_path  |                                           left_schema                                           | right_path |                                right_schema                                 
+--------+------------+-------------------------------------------------------------------------------------------------+------------+-----------------------------------------------------------------------------
+ update |            | [{"id": "number"}, {"arr": "array"}, {"col": "number"}, {"data": "string"}, {"name": "string"}] |            | [{"id": "number"}, {"arr": "array"}, {"val": "number"}, {"data": "string"}]
+ update | ->'arr'    | [{"length": 4}, "number", "string", "number", "number"]                                         | ->'arr'    | [{"length": 3}, "number", "number", "number"]
+ delete | ->'col'    | {"number": 1}                                                                                   |            | 
+ update | ->'arr'->1 | {"string": "2"}                                                                                 | ->'arr'->1 | {"number": 2}
+ delete | ->'name'   | {"string": "foo"}                                                                               |            | 
+ append |            |                                                                                                 | ->'val'    | {"number": 1}
+ delete | ->'arr'->3 | {"number": 4}                                                                                   |            | 
+ update | ->'data'   | {"string": "foo"}                                                                               | ->'data'   | {"string": "bar"}
+(8 rows)
+

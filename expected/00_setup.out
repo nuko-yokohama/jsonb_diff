@@ -1,0 +1,8 @@
+CREATE EXTENSION jsonb_diff;
+\dx jsonb_diff;
+                              List of installed extensions
+    Name    | Version | Schema |                       Description                       
+------------+---------+--------+---------------------------------------------------------
+ jsonb_diff | 1.0     | public | Compare two JSONB documents and report the differences.
+(1 row)
+

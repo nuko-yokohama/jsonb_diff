@@ -1,0 +1,42 @@
+-- update
+SELECT * FROM jsonb_diff(
+  '[{"key":0, "value":"foo"},{"key":1, "value":"foo"},{"key":2, "value":"bar"}]',
+  '[{"key":0, "value":"foo"},{"key":1, "value":"baz"},{"key":3, "value":"bar"}]'
+);
+NOTICE:  table "scm_table" does not exist, skipping
+  kind  |  left_path   |    left_schema    |  right_path  |   right_schema    
+--------+--------------+-------------------+--------------+-------------------
+ update | ->1->'value' | {"string": "foo"} | ->1->'value' | {"string": "baz"}
+ update | ->2->'key'   | {"number": 2}     | ->2->'key'   | {"number": 3}
+(2 rows)
+
+-- append
+SELECT * FROM jsonb_diff(
+  '[{"key":0, "value":"foo"},{"key":2, "value":"bar"}]',
+  '[{"key":0, "value":"foo"},{"key":1, "value":"foo"},{"key":2, "value":"bar"}]'
+);
+  kind  |  left_path   |             left_schema             |  right_path  |                 right_schema                  
+--------+--------------+-------------------------------------+--------------+-----------------------------------------------
+ append |              |                                     | ->2->'value' | {"string": "bar"}
+ update | ->1->'key'   | {"number": 2}                       | ->1->'key'   | {"number": 1}
+ append |              |                                     | ->2->'key'   | {"number": 2}
+ update | ->1->'value' | {"string": "bar"}                   | ->1->'value' | {"string": "foo"}
+ update |              | [{"length": 2}, "object", "object"] |              | [{"length": 3}, "object", "object", "object"]
+ append |              |                                     | ->2          | [{"key": "number"}, {"value": "string"}]
+(6 rows)
+
+-- delete
+SELECT * FROM jsonb_diff(
+  '[{"key":0, "value":"foo"},{"key":1, "value":"foo"},{"key":2, "value":"bar"}]',
+  '[{"key":0, "value":"foo"},{"key":2, "value":"bar"}]'
+);
+  kind  |  left_path   |                  left_schema                  |  right_path  |            right_schema             
+--------+--------------+-----------------------------------------------+--------------+-------------------------------------
+ update | ->1->'value' | {"string": "foo"}                             | ->1->'value' | {"string": "bar"}
+ delete | ->2          | [{"key": "number"}, {"value": "string"}]      |              | 
+ delete | ->2->'key'   | {"number": 2}                                 |              | 
+ update | ->1->'key'   | {"number": 1}                                 | ->1->'key'   | {"number": 2}
+ delete | ->2->'value' | {"string": "bar"}                             |              | 
+ update |              | [{"length": 3}, "object", "object", "object"] |              | [{"length": 2}, "object", "object"]
+(6 rows)
+

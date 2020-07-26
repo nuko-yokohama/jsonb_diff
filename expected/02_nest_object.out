@@ -1,0 +1,10 @@
+SELECT * FROM jsonb_diff(
+  '{"id":1, "obj":{"key":1, "data1":"foo", "data2":"bar"}}',
+  '{"id":1, "obj":{"key":1, "data1":"foo", "data2":"baz"}}'
+);
+NOTICE:  table "scm_table" does not exist, skipping
+  kind  |    left_path     |    left_schema    |    right_path    |   right_schema    
+--------+------------------+-------------------+------------------+-------------------
+ update | ->'obj'->'data2' | {"string": "bar"} | ->'obj'->'data2' | {"string": "baz"}
+(1 row)
+
