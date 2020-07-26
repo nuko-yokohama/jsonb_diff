@@ -40,4 +40,9 @@ jsonb_diff=# SELECT * FROM diff_jsonb('{"id":1, "name":"foo", "data":"foo", "col
 
 jsonb_diff=#
 ```
+## TODO
+
+* extension化
+* リグレッションテストの作成
+* pl/pgsqlで作っているので、性能面での懸念がある。（ただ、C言語等での作り直しはするつもりはない）
 
