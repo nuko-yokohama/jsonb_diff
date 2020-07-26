@@ -26,20 +26,84 @@ diff行型は以下のような列を持ちます。
 
 ## 使用例
 
-```
-jsonb_diff=# SELECT * FROM diff_jsonb('{"id":1, "name":"foo", "data":"foo", "col":1}', '{"id":1, "data":"bar", "val":1}');
-  kind  | left_path |                                  left_schema                                  | right_path |                       right_schema
+例えば、以下の2つのJSONB文書（わかりやすくするため、jsonb_prettyで表示する）がある。
 
---------+-----------+-------------------------------------------------------------------------------+------------+-----------------------------------------------------------
- update | ->'data'  | {"string": "foo"}                                                             | ->'data'   | {"string": "bar"}
- update |           | [{"id": "number"}, {"col": "number"}, {"data": "string"}, {"name": "string"}] |            | [{"id": "number"}, {"val": "number"}, {"data": "string"}]
- delete | ->'name'  | {"string": "foo"}                                                             |            |
- append |           |                                                                               | ->'val'    | {"number": 1}
- delete | ->'col'   | {"number": 1}                                                                 |            |
-(5 rows)
+left側
+
+```
+jsonb_diff=# SELECT jsonb_pretty('{"id":1, "name":"foo", "data":"foo", "col":1, "arr":[1,"2",3,4] }');
+    jsonb_pretty
+--------------------
+ {                 +
+     "id": 1,      +
+     "arr": [      +
+         1,        +
+         "2",      +
+         3,        +
+         4         +
+     ],            +
+     "col": 1,     +
+     "data": "foo",+
+     "name": "foo" +
+ }
+(1 row)
+```
+
+right側
+
+```
+jsonb_diff=# SELECT jsonb_pretty('{"id":1, "data":"bar", "val":1, "arr":[1,2,3]}');
+   jsonb_pretty
+-------------------
+ {                +
+     "id": 1,     +
+     "arr": [     +
+         1,       +
+         2,       +
+         3        +
+     ],           +
+     "val": 1,    +
+     "data": "bar"+
+ }
+(1 row)
+```
+
+この2つのJSONB文書をdiff_jsonb関数で比較すると以下のようになる。
+
+```
+jsonb_diff=# SELECT * FROM diff_jsonb(
+  '{"id":1, "name":"foo", "data":"foo", "col":1, "arr":[1,"2",3,4] }',
+  '{"id":1, "data":"bar", "val":1, "arr":[1,2,3]}'
+);
+  kind  | left_path  |                                           left_schema                                           | right_path |
+          right_schema
+--------+------------+-------------------------------------------------------------------------------------------------+------------+-----------------------------------------------------------------------------
+ update |            | [{"id": "number"}, {"arr": "array"}, {"col": "number"}, {"data": "string"}, {"name": "string"}] |            | [{"id": "number"}, {"arr": "array"}, {"val": "number"}, {"data": "string"}]
+ update | ->'arr'    | [{"length": 4}, "number", "string", "number", "number"]                                         | ->'arr'    | [{"length": 3}, "number", "number", "number"]
+ delete | ->'col'    | {"number": 1}                                                                                   |            |
+ update | ->'arr'->1 | {"string": "2"}                                                                                 | ->'arr'->1 | {"number": 2}
+ delete | ->'name'   | {"string": "foo"}                                                                               |            |
+ append |            |                                                                                                 | ->'val'    | {"number": 1}
+ delete | ->'arr'->3 | {"number": 4}                                                                                   |            |
+ update | ->'data'   | {"string": "foo"}                                                                               | ->'data'   | {"string": "bar"}
+(8 rows)
 
 jsonb_diff=#
 ```
+
+差分情報の内容は以下のようになる。
+
+|行|種別|内容|
+|--:|:--|:--|
+|1|update|文書トップ(パスが空白)の直下の差分を示す。|
+|2|update|->'arr' パスで示される箇所の差分を示す。配列要素数の違いや、途中の要素の型の違いがある。|
+|3|delete|->'col' パスで示される箇所は、left側には存在するが、right側には存在しない。|
+|4|update|->'arr'->1 パスで示される箇所の差分を示す。左辺はstring型の2だが、右辺はnumber型の2である。|
+|5|delete|->'name' パスで示される箇所は、left側には存在するが、right側には存在しない。|
+|6|append|->'val' パスで示される箇所は、left側には存在しないが、right側には存在する。|
+|7|delete|->'arr'->3 パス(0相対なのでarrの4番目の要素)で示される箇所は、left側には存在するが、right側には存在しない。|
+|8|update|->'data' パスで示される箇所の差分を示す。この例では値(fooとbar)が異なっている。|
+
 ## TODO
 
 * extension化
