@@ -2,8 +2,10 @@
 -- jsonb_diff.sql
 -- Compare two JSONB documents and report the differences.
 --
+\echo Use "CREATE EXTENSION jsonb_diff" to load this file. \quit
 
-DROP TYPE diff CASCADE;
+
+DROP TYPE IF EXISTS diff CASCADE;
 CREATE TYPE diff AS (kind text, left_path text, left_schema jsonb, right_path text, right_schema jsonb);
 
 --

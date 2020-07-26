@@ -1,7 +1,15 @@
 # jsonb_diff
 2つのjsonb文書の差分を表示するSQL関数。
 
-## SQL関数形式
+## インストール
+
+```
+$ git clone https://github.com/nuko-yokohama/jsonb_diff
+$ make USE_PGXS=1 install
+$ psql testdb -c 'CREATE EXTENSION jsonb_diff'
+```
+
+## 提供するSQL関数形式
 
 ```
 jsonb_diff(lj jsonb, rj jsonb)
@@ -23,6 +31,8 @@ diff行型は以下のような列を持ちます。
 |left_schema|jsonb|差分箇所のスキーマを示すJSONBデータ|
 |right_path|text|差分箇所のパス文字列(jsonbのパス文字列)|
 |right_schema|jsonb|差分箇所のスキーマを示すJSONBデータ|
+
+このEXTENSIONを登録すると、jsonb_diff()以外に数種類のSQL関数も登録されるが、それらは内部関数であるため、SQLからの呼び出しは推奨しない。
 
 ## 使用例
 
@@ -106,7 +116,6 @@ jsonb_diff=#
 
 ## TODO
 
-* extension化
 * リグレッションテストの作成
 * pl/pgsqlで作っているので、性能面での懸念がある。（ただ、C言語等での作り直しはするつもりはない）
 

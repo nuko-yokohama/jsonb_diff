@@ -1,0 +1,4 @@
+# jsonb_diff extension
+comment = 'Compare two JSONB documents and report the differences.'
+default_version = '1.0'
+relocatable = false
