@@ -4,7 +4,7 @@
 ## SQL関数形式
 
 ```
-diff_jsonb(lj jsonb, rj jsonb)
+jsonb_diff(lj jsonb, rj jsonb)
 ```
 ### 引数
 
@@ -68,10 +68,10 @@ jsonb_diff=# SELECT jsonb_pretty('{"id":1, "data":"bar", "val":1, "arr":[1,2,3]}
 (1 row)
 ```
 
-この2つのJSONB文書をdiff_jsonb関数で比較すると以下のようになる。
+この2つのJSONB文書をjsonb_diff関数で比較すると以下のようになる。
 
 ```
-jsonb_diff=# SELECT * FROM diff_jsonb(
+jsonb_diff=# SELECT * FROM jsonb_diff(
   '{"id":1, "name":"foo", "data":"foo", "col":1, "arr":[1,"2",3,4] }',
   '{"id":1, "data":"bar", "val":1, "arr":[1,2,3]}'
 );

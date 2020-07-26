@@ -119,10 +119,10 @@ $function$
 ;
 
 --
--- diff_jsonb()
+-- jsonb_diff()
 -- Compare two JSONB documents and report the differences.
 --
-CREATE OR REPLACE FUNCTION diff_jsonb(lj jsonb, rj jsonb)
+CREATE OR REPLACE FUNCTION jsonb_diff(lj jsonb, rj jsonb)
  RETURNS SETOF diff
  LANGUAGE plpgsql
  -- common options:  IMMUTABLE  STABLE  STRICT  SECURITY DEFINER
