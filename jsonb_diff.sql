@@ -1,12 +1,14 @@
 --
 -- jsonb_diff.sql
+-- Compare two JSONB documents and report the differences.
 --
 
 DROP TYPE diff CASCADE;
 CREATE TYPE diff AS (kind text, left_path text, left_schema jsonb, right_path text, right_schema jsonb);
 
 --
--- 直下の子要素の構造情報を示すスキーマJSONBを生成する。
+-- child_schema(internal)
+-- Generate schema JSONB that shows the structural information of the child element immediately below.
 --
 CREATE OR REPLACE FUNCTION child_schema( jb jsonb )
  RETURNS jsonb
@@ -29,7 +31,8 @@ $function$
 ;
 
 --
--- 直下の配列の構造情報を示すスキーマJSONBを生成する。
+-- array_schema(internal)
+-- Generate a schema JSONB that shows the structural information of the array immediately below.
 --
 CREATE OR REPLACE FUNCTION array_schema( jb jsonb )
  RETURNS jsonb
@@ -52,6 +55,9 @@ END;
 $function$
 ;
 
+--
+-- insert_scm_table(internal)
+-- Insert the structure information of JSONB into the intermediate table (scm_table) for comparison.
 --
 CREATE OR REPLACE FUNCTION insert_scm_table( jb jsonb, path_text text, node text)
  RETURNS jsonb
@@ -112,6 +118,10 @@ END;
 $function$
 ;
 
+--
+-- diff_jsonb()
+-- Compare two JSONB documents and report the differences.
+--
 CREATE OR REPLACE FUNCTION diff_jsonb(lj jsonb, rj jsonb)
  RETURNS SETOF diff
  LANGUAGE plpgsql
